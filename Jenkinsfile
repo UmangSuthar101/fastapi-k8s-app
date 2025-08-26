@@ -6,12 +6,14 @@ pipeline {
         DOCKERHUB_REPO = "umang101/fastapi-k8s-app"
     }
 
-    stages {
-        stage('Checkout') {
-            steps {
-                git branch: 'main', url: 'https://github.com/UmangSuthar101/fastapi-k8s.git'
-            }
-        }
+    stage('Checkout') {
+    steps {
+        git branch: 'main',
+            credentialsId: 'github-credentials',
+            url: 'https://github.com/UmangSuthar101/fastapi-k8s-app.git'
+    }
+}
+
 
         stage('Build Docker Image') {
             steps {

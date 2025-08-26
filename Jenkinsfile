@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/your-repo/fastapi-k8s.git'
+                git branch: 'main', url: 'https://github.com/UmangSuthar101/fastapi-k8s.git'
             }
         }
 

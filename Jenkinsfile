@@ -2,24 +2,23 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')  // add in Jenkins > Manage Credentials
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
         DOCKERHUB_REPO = "umang101/fastapi-k8s-app"
     }
 
-    stage('Checkout') {
-    steps {
-        git branch: 'main',
-            credentialsId: 'github-credentials',
-            url: 'https://github.com/UmangSuthar101/fastapi-k8s-app.git'
-    }
-}
-
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main',
+                    credentialsId: 'github-credentials',
+                    url: 'https://github.com/UmangSuthar101/fastapi-k8s-app.git'
+            }
+        }
 
         stage('Build Docker Image') {
             steps {
                 script {
-                    IMAGE_TAG = "${env.BUILD_NUMBER}"   // use Jenkins build number
-                    sh "docker build -t $DOCKERHUB_REPO:$IMAGE_TAG ."
+                    sh 'docker build -t $DOCKERHUB_REPO:latest .'
                 }
             }
         }
@@ -28,7 +27,7 @@ pipeline {
             steps {
                 script {
                     sh "echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin"
-                    sh "docker push $DOCKERHUB_REPO:$IMAGE_TAG"
+                    sh 'docker push $DOCKERHUB_REPO:latest'
                 }
             }
         }
@@ -36,12 +35,8 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    // Replace image tag dynamically in deployment.yaml
-                    sh """
-                        sed -i 's|image: $DOCKERHUB_REPO:.*|image: $DOCKERHUB_REPO:$IMAGE_TAG|' k8s/deployment.yaml
-                        kubectl apply -f k8s/deployment.yaml
-                        kubectl apply -f k8s/service.yaml
-                    """
+                    sh 'kubectl apply -f k8s-deployment.yaml'
+                    sh 'kubectl apply -f k8s-service.yaml'
                 }
             }
         }

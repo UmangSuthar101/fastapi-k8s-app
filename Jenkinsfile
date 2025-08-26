@@ -18,11 +18,13 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    IMAGE_TAG = "${env.BUILD_NUMBER}"   // use Jenkins build number
+                    def IMAGE_TAG = "${env.BUILD_NUMBER}"   // ✅ declare with def
                     sh "docker build -t $DOCKERHUB_REPO:$IMAGE_TAG ."
+                    env.IMAGE_TAG = IMAGE_TAG   // ✅ export to env for later stages
                 }
             }
         }
+
 
         stage('Push to DockerHub') {
             steps {

@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')  // Jenkins -> Manage Credentials
         DOCKERHUB_REPO = "umang101/fastapi-k8s-app"
     }
 
@@ -10,7 +10,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    def IMAGE_TAG = "${env.BUILD_NUMBER}"   // Jenkins build number
+                    def IMAGE_TAG = "${env.BUILD_NUMBER}"
                     sh "docker build -t $DOCKERHUB_REPO:$IMAGE_TAG ."
                 }
             }
@@ -29,9 +29,10 @@ pipeline {
             steps {
                 script {
                     sh """
-                        sed -i 's|image: $DOCKERHUB_REPO:.*|image: $DOCKERHUB_REPO:${env.BUILD_NUMBER}|' k8s/deployment.yaml
-                        kubectl apply -f k8s/deployment.yaml
-                        kubectl apply -f k8s/service.yaml
+                        sed -i 's|image: $DOCKERHUB_REPO:.*|image: $DOCKERHUB_REPO:${env.BUILD_NUMBER}|' k8s-deployment.yaml
+                        kubectl apply -f k8s-deployment.yaml
+                        kubectl apply -f k8s-service.yaml
+                        kubectl apply -f k8s-ingress.yaml
                     """
                 }
             }
